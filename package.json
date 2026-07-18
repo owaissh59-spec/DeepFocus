@@ -28,7 +28,8 @@
       "output": "dist"
     },
     "win": {
-      "target": ["nsis", "portable"]
+      "target": ["nsis", "portable"],
+      "icon": "src/icons/icon.png"
     },
     "nsis": {
       "oneClick": true,

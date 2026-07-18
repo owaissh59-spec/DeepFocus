@@ -25,20 +25,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate PNG icon
+      - name: Generate icon files
         run: |
           npm install --no-save sharp
-          node -e "
-          const sharp = require('sharp');
-          const fs = require('fs');
-          const svg = fs.readFileSync('src/icons/icon.svg');
-          sharp(svg).resize(256, 256).png().toFile('build-icon.png').then(() => {
-            console.log('Icon generated');
-          });
-          "
+          node -e "const sharp=require('sharp'),fs=require('fs'),svg=fs.readFileSync('src/icons/icon.svg');sharp(svg).resize(256,256).png().toFile('src/icons/icon.png').then(()=>console.log('256px done'));sharp(svg).resize(512,512).png().toFile('src/icons/icon-512.png').then(()=>console.log('512px done'));"
 
       - name: Build Windows
-        run: npx electron-builder --win nsis portable -c.win.icon=build-icon.png
+        run: npx electron-builder --win nsis portable
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
