@@ -101,9 +101,9 @@ jobs:
       - name: Build APK
         run: |
           cd android
-          chmod +x gradlew 2>/dev/null || true
-          # Use gradle wrapper or direct gradle
-          gradle assembleRelease --no-daemon || ./gradlew assembleRelease --no-daemon
+          gradle wrapper --gradle-version 8.9
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
 

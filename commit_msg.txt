@@ -1,1 +1,1 @@
-v2.0.0: Replace Electron with Tauri for lightweight build (< 5MB vs 157MB)
+v2.1.0: Fix Windows launch (center window, simplify Rust), add Android APK build
