@@ -1,0 +1,43 @@
+{
+  "name": "deepfocus",
+  "version": "1.0.0",
+  "description": "DeepFocus - Minimal always-on study timer with daily analytics",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:android": "echo 'Use PWA - open index.html in mobile browser and Add to Home Screen'"
+  },
+  "author": "DeepFocus",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AATechnology/DeepFocus.git"
+  },
+  "keywords": ["study", "timer", "focus", "pomodoro", "always-on", "tracker"],
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "28.1.0",
+    "electron-builder": "24.9.1"
+  },
+  "build": {
+    "appId": "com.deepfocus.app",
+    "productName": "DeepFocus",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "src/icons/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true
+    }
+  }
+}

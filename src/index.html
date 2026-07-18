@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>DeepFocus</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main Timer Screen -->
+    <div id="main-screen" class="screen active">
+        <!-- Top bar: Date left, Settings icon right -->
+        <div class="top-bar">
+            <div id="current-date" class="date-display"></div>
+            <button id="btn-menu" class="icon-btn" title="Menu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/>
+                    <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+                    <circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Clock -->
+        <div class="clock-section">
+            <div id="current-time" class="clock-display">00:00:00</div>
+        </div>
+
+        <!-- Central Timer with large circle -->
+        <div class="timer-section">
+            <div class="timer-ring-wrapper">
+                <canvas id="timer-canvas"></canvas>
+                <div class="timer-inner">
+                    <div class="timer-label">
+                        <span id="timer-status-dot" class="status-dot stopped"></span>
+                        <span id="timer-status-text">Ready</span>
+                    </div>
+                    <div id="study-timer" class="timer-display">00:00:00</div>
+                    <div class="session-info">
+                        <span id="session-count">0 sessions</span>
+                        <span class="dot-sep"></span>
+                        <span id="total-today">0m today</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="daily-goal-section">
+            <div class="goal-meta">
+                <span class="goal-label">Goal: <span id="goal-hours">6</span>h</span>
+                <span id="progress-percent" class="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Compact controls - bottom right -->
+        <div class="controls-row">
+            <button id="btn-start" class="fab primary" title="Start Studying">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="6,3 20,12 6,21"/>
+                </svg>
+            </button>
+            <button id="btn-pause" class="fab warning hidden" title="Pause">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                </svg>
+            </button>
+            <button id="btn-resume" class="fab success hidden" title="Resume">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="6,3 20,12 6,21"/>
+                </svg>
+            </button>
+            <button id="btn-stop" class="fab-small danger hidden" title="End Day">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="5" y="5" width="14" height="14" rx="2"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Menu Panel (History + Settings combined) -->
+    <div id="menu-screen" class="screen">
+        <div class="top-bar">
+            <button id="btn-back" class="icon-btn" title="Back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h2 class="screen-title">Menu</h2>
+            <div style="width:40px"></div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="menu-section">
+            <h3 class="menu-section-title">Settings</h3>
+            <div class="setting-item">
+                <label>Daily Study Goal</label>
+                <div class="goal-input-group">
+                    <input type="number" id="daily-goal-input" min="1" max="16" value="6">
+                    <span class="input-suffix">hours</span>
+                </div>
+            </div>
+            <div class="setting-item">
+                <label>Always on Top</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="always-on-top-toggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label>Auto-start with System</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="auto-start-toggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label>Break Reminder</label>
+                <div class="goal-input-group">
+                    <input type="number" id="break-reminder-input" min="0" max="120" value="45">
+                    <span class="input-suffix">min</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="menu-section">
+            <h3 class="menu-section-title">This Week</h3>
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-week-total">0h</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-avg">0h</div>
+                    <div class="stat-label">Daily Avg</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-streak">0</div>
+                    <div class="stat-label">Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="menu-section">
+            <h3 class="menu-section-title">Last 7 Days</h3>
+            <div id="weekly-chart" class="bar-chart"></div>
+        </div>
+
+        <!-- History Section -->
+        <div class="menu-section history-section">
+            <h3 class="menu-section-title">Session Log</h3>
+            <div id="history-entries"></div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background - rounded square -->
+  <rect width="512" height="512" rx="108" fill="#000000"/>
+  
+  <!-- Outer glow ring -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="url(#grad1)" stroke-width="8" opacity="0.3"/>
+  
+  <!-- Main focus ring -->
+  <circle cx="256" cy="256" r="170" fill="none" stroke="url(#grad1)" stroke-width="12"/>
+  
+  <!-- Inner subtle ring -->
+  <circle cx="256" cy="256" r="130" fill="none" stroke="#1a1a1a" stroke-width="3"/>
+  
+  <!-- Clock minute hand -->
+  <line x1="256" y1="256" x2="256" y2="145" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Clock hour hand -->
+  <line x1="256" y1="256" x2="310" y2="210" stroke="#cccccc" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Center dot -->
+  <circle cx="256" cy="256" r="10" fill="#00e676"/>
+  
+  <!-- Focus crosshair marks (subtle) -->
+  <line x1="256" y1="80" x2="256" y2="100" stroke="#00e676" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  <line x1="256" y1="412" x2="256" y2="432" stroke="#00e676" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  <line x1="80" y1="256" x2="100" y2="256" stroke="#00e676" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  <line x1="412" y1="256" x2="432" y2="256" stroke="#00e676" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#448aff"/>
+      <stop offset="50%" stop-color="#00e676"/>
+      <stop offset="100%" stop-color="#18ffff"/>
+    </linearGradient>
+  </defs>
+</svg>
