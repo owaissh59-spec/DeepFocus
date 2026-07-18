@@ -39,6 +39,88 @@ html, body {
 }
 
 /* ============================================
+   CUSTOM TITLEBAR
+   ============================================ */
+
+.titlebar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 32px;
+    padding: 0 8px;
+    background: var(--bg-primary);
+    flex-shrink: 0;
+    -webkit-app-region: drag;
+}
+
+.titlebar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.titlebar-title {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.titlebar-buttons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    -webkit-app-region: no-drag;
+}
+
+.titlebar-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+
+.titlebar-btn:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+.titlebar-btn.btn-close:hover {
+    background: var(--accent-red);
+    color: white;
+}
+
+/* Fullscreen mode - hide titlebar, show on hover */
+body.fullscreen .titlebar {
+    position: fixed;
+    top: -32px;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    transition: top 0.3s ease;
+}
+
+body.fullscreen:hover .titlebar,
+body.fullscreen .titlebar:hover {
+    top: 0;
+}
+
+body.fullscreen .screen {
+    padding-top: 8px;
+}
+
+body.fullscreen .controls-row {
+    bottom: 16px;
+}
+
+/* ============================================
    SCREENS
    ============================================ */
 

@@ -109,20 +109,20 @@ jobs:
 
       - name: Rename APK
         run: |
-          cp android/app/build/outputs/apk/release/app-release-unsigned.apk DeepFocus-v2.1.0.apk || \
-          cp android/app/build/outputs/apk/release/app-release.apk DeepFocus-v2.1.0.apk || true
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk DeepFocus-v2.2.0.apk || \
+          cp android/app/build/outputs/apk/release/app-release.apk DeepFocus-v2.2.0.apk || true
 
       - name: Upload APK to release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: DeepFocus-v2.1.0.apk
+          files: DeepFocus-v2.2.0.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: DeepFocus-v2.1.0.apk
+          path: DeepFocus-v2.2.0.apk
 
   deploy-pwa:
     runs-on: ubuntu-latest

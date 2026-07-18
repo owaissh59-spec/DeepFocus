@@ -11,11 +11,32 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Custom Title Bar (draggable) -->
+    <div class="titlebar" data-tauri-drag-region>
+        <div class="titlebar-left" data-tauri-drag-region>
+            <span class="titlebar-title" data-tauri-drag-region>DeepFocus</span>
+        </div>
+        <div class="titlebar-buttons">
+            <button id="btn-minimize" class="titlebar-btn" title="Minimize">
+                <svg width="12" height="12" viewBox="0 0 12 12"><rect x="2" y="5.5" width="8" height="1" fill="currentColor"/></svg>
+            </button>
+            <button id="btn-maximize" class="titlebar-btn" title="Maximize">
+                <svg width="12" height="12" viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+            </button>
+            <button id="btn-fullscreen" class="titlebar-btn" title="Fullscreen (F11)">
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 4V2h2M8 2h2v2M10 8v2H8M4 10H2V8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+            </button>
+            <button id="btn-close" class="titlebar-btn btn-close" title="Close">
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+    </div>
+
     <!-- Main Timer Screen -->
     <div id="main-screen" class="screen active">
-        <!-- Top bar: Date left, Settings icon right -->
+        <!-- Top bar: Date left, Menu icon right -->
         <div class="top-bar" data-tauri-drag-region>
-            <div id="current-date" class="date-display"></div>
+            <div id="current-date" class="date-display" data-tauri-drag-region></div>
             <button id="btn-menu" class="icon-btn" title="Menu">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                     <circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/>
@@ -27,11 +48,11 @@
 
         <!-- Clock -->
         <div class="clock-section" data-tauri-drag-region>
-            <div id="current-time" class="clock-display">00:00:00</div>
+            <div id="current-time" class="clock-display" data-tauri-drag-region>00:00:00</div>
         </div>
 
         <!-- Central Timer with large circle -->
-        <div class="timer-section">
+        <div class="timer-section" data-tauri-drag-region>
             <div class="timer-ring-wrapper">
                 <canvas id="timer-canvas"></canvas>
                 <div class="timer-inner">
@@ -163,5 +184,6 @@
     </div>
 
     <script src="renderer.js"></script>
+    <script src="window-controls.js"></script>
 </body>
 </html>
