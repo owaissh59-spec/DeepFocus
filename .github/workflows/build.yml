@@ -25,8 +25,20 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Generate PNG icon
+        run: |
+          npm install --no-save sharp
+          node -e "
+          const sharp = require('sharp');
+          const fs = require('fs');
+          const svg = fs.readFileSync('src/icons/icon.svg');
+          sharp(svg).resize(256, 256).png().toFile('build-icon.png').then(() => {
+            console.log('Icon generated');
+          });
+          "
+
       - name: Build Windows
-        run: npx electron-builder --win nsis portable
+        run: npx electron-builder --win nsis portable -c.win.icon=build-icon.png
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -34,19 +46,24 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: |
-            dist/*.exe
-            dist/*.yml
+          path: dist/*.exe
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            dist/*.exe
+          name: DeepFocus ${{ github.ref_name }}
+          files: dist/*.exe
           draft: false
           prerelease: false
-          generate_release_notes: true
+          body: |
+            ## Downloads
+            
+            **Windows:** Download the `.exe` file below
+            - `DeepFocus-Setup` - Installer (recommended)
+            - `DeepFocus-Portable` - No install needed, run directly
+            
+            **Android:** Visit https://owaissh59-spec.github.io/DeepFocus/ in Chrome and tap "Add to Home Screen"
 
   deploy-pwa:
     runs-on: ubuntu-latest
@@ -55,6 +72,8 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: true
 
       - name: Upload PWA to Pages
         uses: actions/upload-pages-artifact@v3
