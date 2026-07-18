@@ -25,26 +25,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate app icon
-        run: |
-          npm install --no-save sharp png2icons
-          node -e "
-          const sharp = require('sharp');
-          const fs = require('fs');
-          const png2icons = require('png2icons');
-          const svg = fs.readFileSync('src/icons/icon.svg');
-          async function gen() {
-            await sharp(svg).resize(256, 256).png().toFile('build/icon.png');
-            const pngBuf = fs.readFileSync('build/icon.png');
-            const ico = png2icons.createICO(pngBuf, png2icons.BILINEAR, 0, true, true);
-            fs.writeFileSync('build/icon.ico', ico);
-            console.log('Icons generated: build/icon.png, build/icon.ico');
-          }
-          gen();
-          "
-        shell: pwsh
-
-      - name: Build Windows
+      - name: Build Windows executables
         run: npx electron-builder --win nsis portable
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
