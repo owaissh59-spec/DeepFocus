@@ -1,45 +1,20 @@
 {
   "name": "deepfocus",
-  "version": "1.0.0",
-  "description": "DeepFocus - Minimal always-on study timer with daily analytics",
-  "main": "src/main.js",
+  "version": "2.0.0",
+  "description": "DeepFocus - Lightweight always-on study timer (< 5MB)",
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win",
-    "build:android": "echo 'Use PWA - open index.html in mobile browser and Add to Home Screen'"
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build"
   },
   "author": "DeepFocus",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AATechnology/DeepFocus.git"
+    "url": "https://github.com/owaissh59-spec/DeepFocus.git"
   },
-  "keywords": ["study", "timer", "focus", "pomodoro", "always-on", "tracker"],
-  "dependencies": {},
+  "keywords": ["study", "timer", "focus", "always-on", "tracker", "lightweight"],
   "devDependencies": {
-    "electron": "28.1.0",
-    "electron-builder": "24.9.1"
-  },
-  "build": {
-    "appId": "com.deepfocus.app",
-    "productName": "DeepFocus",
-    "directories": {
-      "output": "dist"
-    },
-    "win": {
-      "target": ["nsis", "portable"]
-    },
-    "nsis": {
-      "oneClick": true,
-      "perMachine": false,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "runAfterFinish": true,
-      "artifactName": "DeepFocus-Setup-${version}.${ext}"
-    },
-    "portable": {
-      "artifactName": "DeepFocus-Portable-${version}.${ext}"
-    }
+    "@tauri-apps/cli": "^2.0.0"
   }
 }

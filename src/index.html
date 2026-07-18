@@ -14,7 +14,7 @@
     <!-- Main Timer Screen -->
     <div id="main-screen" class="screen active">
         <!-- Top bar: Date left, Settings icon right -->
-        <div class="top-bar">
+        <div class="top-bar" data-tauri-drag-region>
             <div id="current-date" class="date-display"></div>
             <button id="btn-menu" class="icon-btn" title="Menu">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Clock -->
-        <div class="clock-section">
+        <div class="clock-section" data-tauri-drag-region>
             <div id="current-time" class="clock-display">00:00:00</div>
         </div>
 

@@ -534,8 +534,8 @@ class UIController {
         await this.storage.saveSetting('alwaysOnTop', alwaysOnTop);
         await this.storage.saveSetting('autoStart', autoStart);
 
-        if (window.electronAPI) {
-            window.electronAPI.updateSettings({ alwaysOnTop, autoStart });
+        if (window.__TAURI__) {
+            // Tauri handles these via plugin config
         }
 
         this.updateRing();
@@ -736,10 +736,13 @@ async function initApp() {
     window.studyApp = { timer, storage, ui };
 }
 
-function notifyElectron(state) { if (window.electronAPI) window.electronAPI.timerStateChanged(state); }
+function notifyElectron(state) {
+    // Tauri handles always-on-top and autostart via config
+    // No IPC needed for timer state
+}
 
 function registerServiceWorker() {
-    if ('serviceWorker' in navigator && !window.electronAPI) {
+    if ('serviceWorker' in navigator && !window.__TAURI__) {
         navigator.serviceWorker.register('sw.js').then(reg => {
             setInterval(() => { if (window.studyApp?.timer.state === 'running') reg.active?.postMessage('keepalive'); }, 20000);
         }).catch(() => {});

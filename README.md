@@ -1,72 +1,57 @@
 # DeepFocus
 
-A minimal, always-on study time tracker with a lockscreen-style dark display. Built for students who want to know exactly how much they study each day.
+A lightweight, always-on study time tracker. Under 5MB. Pure black AMOLED display.
+
+Built with [Tauri](https://tauri.app) — uses your system's webview instead of bundling a browser.
 
 ## Features
 
-- **Precise Timer** - Start, pause, resume with second-level counting
-- **Always-on AMOLED Display** - Pure black theme, minimal power draw
-- **Crash Recovery** - State persists every second; auto-recovers after shutdown (up to 30 min)
-- **Auto-Start** - Launches silently on system boot
-- **System Tray** - Runs in background, always accessible
-- **Circular Progress Ring** - Dynamically sized, fills as you approach your daily goal
-- **Daily Goal** - Customizable target (default 6 hours)
-- **Analytics** - Weekly chart, streak counter, daily averages, full session history
-- **Break Reminders** - Configurable alerts to rest your eyes
-- **Cross-Platform** - Windows (Electron) + Android (PWA)
-- **Always on Top** - Stays visible like a lockscreen widget
+- **Precise Timer** — Start, pause, resume with second-level counting
+- **Lightweight** — Under 5MB installer (vs 150MB+ for Electron apps)
+- **Always-on AMOLED Display** — Pure black theme, minimal power
+- **Crash Recovery** — Auto-recovers after shutdown (up to 30 min)
+- **Auto-Start** — Launches silently on boot
+- **System Tray** — Minimize to tray, always accessible
+- **Circular Progress Ring** — Visual daily goal tracker
+- **Daily Goal** — Customizable (default 6 hours)
+- **Analytics** — Weekly chart, streak counter, session history
+- **Break Reminders** — Configurable rest alerts
+- **Cross-Platform** — Windows (Tauri) + Android (PWA)
+- **Always on Top** — Lockscreen-style widget
 
-## Quick Start
+## Download
+
+- **Windows:** [Releases page](https://github.com/owaissh59-spec/DeepFocus/releases)
+- **Android:** Open https://owaissh59-spec.github.io/DeepFocus/ in Chrome → "Add to Home Screen"
+
+## Build from Source
+
+Requires: [Rust](https://rustup.rs), [Node.js](https://nodejs.org)
 
 ```bash
-cd DeepFocus
 npm install
-npm start
+npx tauri build
 ```
 
-Or double-click `start.bat`.
-
-## Android (PWA)
-
-1. Host the `src/` folder on any server (e.g. `npx serve src/`)
-2. Open in Chrome on your phone
-3. Tap "Add to Home Screen"
-4. Works offline with screen wake lock
-
-## How It Works
-
-| Action | What Happens |
-|--------|-------------|
-| **Start** | Begin studying, timer counts up |
-| **Pause** | Take a break, session is saved |
-| **Resume** | Continue after break |
-| **End Day** | Save all data, reset for tomorrow |
-
-Data is stored locally (IndexedDB + localStorage). Nothing is sent anywhere.
-
-## Building
-
-```bash
-npm run build:win
-```
-
-Creates a Windows installer in `dist/`.
+Output in `src-tauri/target/release/bundle/`
 
 ## Project Structure
 
 ```
 DeepFocus/
-├── src/
-│   ├── main.js         # Electron (window, tray, power, auto-start)
-│   ├── preload.js      # IPC bridge
-│   ├── index.html      # UI
-│   ├── styles.css      # AMOLED dark theme
-│   ├── renderer.js     # Timer + storage + canvas ring + analytics
-│   ├── manifest.json   # PWA manifest
-│   ├── sw.js           # Service worker
-│   └── icons/          # App icon
+├── src/                    # Frontend (HTML/CSS/JS)
+│   ├── index.html
+│   ├── styles.css
+│   ├── renderer.js
+│   ├── manifest.json       # PWA
+│   ├── sw.js               # Service worker
+│   └── icons/
+├── src-tauri/              # Tauri backend (Rust)
+│   ├── Cargo.toml
+│   ├── tauri.conf.json
+│   └── src/main.rs
+├── generate-icons.js
 ├── package.json
-├── start.bat
 └── README.md
 ```
 
