@@ -28,16 +28,19 @@
       "output": "dist"
     },
     "win": {
-      "target": "nsis",
-      "icon": "src/icons/icon.ico"
+      "target": ["nsis", "portable"],
+      "icon": "src/icons/icon.svg"
     },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "runAfterFinish": true
+      "runAfterFinish": true,
+      "artifactName": "DeepFocus-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "DeepFocus-Portable-${version}.${ext}"
     }
   }
 }
