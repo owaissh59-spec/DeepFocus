@@ -33,7 +33,7 @@ jobs:
       - name: Install Tauri CLI
         run: npm install
 
-      - name: Generate icons from SVG
+      - name: Generate icons
         run: |
           npm install --no-save sharp png2icons
           node generate-icons.js
@@ -41,16 +41,6 @@ jobs:
 
       - name: Build Tauri app
         run: npx tauri build
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ""
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-build
-          path: |
-            src-tauri/target/release/bundle/nsis/*.exe
-            src-tauri/target/release/bundle/msi/*.msi
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -62,12 +52,77 @@ jobs:
             src-tauri/target/release/bundle/msi/*.msi
           draft: false
           prerelease: false
+          generate_release_notes: false
           body: |
-            ## DeepFocus ${{ github.ref_name }} - Lightweight Study Timer (< 5MB)
+            ## DeepFocus ${{ github.ref_name }} - Lightweight Study Timer
             
-            **Windows:** Download the `.exe` installer or `.msi` below
+            ### Windows (< 5MB)
+            Download the `.exe` installer below.
             
-            **Android:** Visit https://owaissh59-spec.github.io/DeepFocus/ in Chrome, tap menu > "Add to Home Screen"
+            ### Android
+            Download the `.apk` file below. Enable "Install from unknown sources" to install.
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Copy web assets to android
+        run: |
+          mkdir -p android/app/src/main/assets/www
+          cp src/index.html android/app/src/main/assets/www/
+          cp src/styles.css android/app/src/main/assets/www/
+          cp src/renderer.js android/app/src/main/assets/www/
+          cp src/manifest.json android/app/src/main/assets/www/
+          cp src/sw.js android/app/src/main/assets/www/
+          mkdir -p android/app/src/main/assets/www/icons
+          cp src/icons/icon.svg android/app/src/main/assets/www/icons/
+
+      - name: Create launcher icon
+        run: |
+          mkdir -p android/app/src/main/res/mipmap-hdpi
+          mkdir -p android/app/src/main/res/mipmap-xhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi
+          # Use a simple green circle as launcher icon via ImageMagick
+          sudo apt-get install -y imagemagick
+          convert -size 72x72 xc:black -fill '#00e676' -draw "circle 36,36 36,6" android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          convert -size 96x96 xc:black -fill '#00e676' -draw "circle 48,48 48,8" android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          convert -size 144x144 xc:black -fill '#00e676' -draw "circle 72,72 72,12" android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew 2>/dev/null || true
+          # Use gradle wrapper or direct gradle
+          gradle assembleRelease --no-daemon || ./gradlew assembleRelease --no-daemon
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+
+      - name: Rename APK
+        run: |
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk DeepFocus-v2.1.0.apk || \
+          cp android/app/build/outputs/apk/release/app-release.apk DeepFocus-v2.1.0.apk || true
+
+      - name: Upload APK to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: DeepFocus-v2.1.0.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: DeepFocus-v2.1.0.apk
 
   deploy-pwa:
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
 {
   "name": "deepfocus",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "DeepFocus - Lightweight always-on study timer (< 5MB)",
   "scripts": {
     "tauri": "tauri",

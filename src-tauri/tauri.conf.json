@@ -1,6 +1,6 @@
 {
   "productName": "DeepFocus",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "identifier": "com.deepfocus.app",
   "build": {
     "frontendDist": "../src"
@@ -10,6 +10,7 @@
     "windows": [
       {
         "title": "DeepFocus",
+        "label": "main",
         "width": 400,
         "height": 700,
         "minWidth": 320,
@@ -18,15 +19,10 @@
         "alwaysOnTop": true,
         "decorations": false,
         "transparent": false,
-        "center": false,
-        "x": 1500,
-        "y": 20
+        "center": true,
+        "visible": true
       }
-    ],
-    "trayIcon": {
-      "iconPath": "icons/icon.png",
-      "iconAsTemplate": false
-    }
+    ]
   },
   "bundle": {
     "active": true,
@@ -41,12 +37,6 @@
         "installMode": "currentUser",
         "displayLanguageSelector": false
       }
-    }
-  },
-  "plugins": {
-    "autostart": {
-      "macOSExtraArgs": [],
-      "args": ["--hidden"]
     }
   }
 }
