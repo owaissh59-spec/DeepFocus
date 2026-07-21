@@ -10,14 +10,32 @@ android {
         applicationId "com.deepfocus.app"
         minSdk 24
         targetSdk 34
-        versionCode 4
-        versionName "2.3.0"
+        versionCode 5
+        versionName "2.3.1"
+    }
+
+    // Signing config is populated from environment variables in CI.
+    // When they are absent (e.g. a plain local build) the release type
+    // falls back to unsigned so configuration never fails.
+    signingConfigs {
+        release {
+            def ksPath = System.getenv("KEYSTORE_PATH")
+            if (ksPath != null) {
+                storeFile file(ksPath)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             shrinkResources false
+            if (System.getenv("KEYSTORE_PATH") != null) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 

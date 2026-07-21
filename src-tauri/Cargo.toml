@@ -1,6 +1,6 @@
 [package]
 name = "deepfocus"
-version = "2.3.0"
+version = "2.3.1"
 description = "Lightweight always-on study timer"
 authors = ["DeepFocus"]
 edition = "2021"
