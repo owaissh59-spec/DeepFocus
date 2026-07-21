@@ -826,11 +826,46 @@ function notifyElectron(state) {
     try { window.Android && window.Android.setTimerRunning(state === 'running'); } catch (e) {}
 }
 
+const APP_VERSION = '2.3.2';
+
 function registerServiceWorker() {
-    if ('serviceWorker' in navigator && !window.__TAURI__) {
-        navigator.serviceWorker.register('sw.js').then(reg => {
-            setInterval(() => { if (window.studyApp?.timer.state === 'running') reg.active?.postMessage('keepalive'); }, 20000);
-        }).catch(() => {});
+    if (!('serviceWorker' in navigator)) return;
+
+    // Desktop (Tauri): we never want a service worker here. Older builds may
+    // have left one that serves stale assets across updates, so remove it and
+    // clear its Cache Storage. This does NOT touch IndexedDB or localStorage,
+    // so study history and settings are fully preserved.
+    if (window.__TAURI__) {
+        navigator.serviceWorker.getRegistrations()
+            .then(regs => regs.forEach(r => r.unregister()))
+            .catch(() => {});
+        if (window.caches && caches.keys) {
+            caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+        }
+        return;
+    }
+
+    // Web / PWA: register a version-stamped worker so every release gets a
+    // fresh cache and the newest assets are served.
+    const hadController = !!navigator.serviceWorker.controller;
+
+    navigator.serviceWorker.register('sw.js?v=' + APP_VERSION).then(reg => {
+        setInterval(() => {
+            if (window.studyApp?.timer.state === 'running') {
+                (reg.active || navigator.serviceWorker.controller)?.postMessage('keepalive');
+            }
+        }, 20000);
+    }).catch(() => {});
+
+    // If an updated worker takes over an already-controlled page, reload once
+    // so the user immediately sees the new version.
+    if (hadController) {
+        let reloaded = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (reloaded) return;
+            reloaded = true;
+            window.location.reload();
+        });
     }
 }
 

@@ -1,80 +1,72 @@
 /**
- * Study Tracker - Service Worker
- * Enables offline functionality and PWA installation on Android
+ * DeepFocus - Service Worker
+ * Network-first with a version-stamped cache so app updates are picked up
+ * immediately (no more stale "old features" after an update), while still
+ * working offline.
+ *
+ * The cache version comes from the registration URL query (?v=<appVersion>),
+ * so every release gets a fresh cache and old caches are purged on activate.
+ * IMPORTANT: this only touches the Cache Storage API - it never touches
+ * IndexedDB or localStorage, so study history and settings are preserved.
  */
 
-const CACHE_NAME = 'study-tracker-v1';
+const VERSION = new URL(self.location).searchParams.get('v') || 'dev';
+const CACHE_NAME = 'deepfocus-' + VERSION;
+
 const ASSETS_TO_CACHE = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/renderer.js',
-    '/manifest.json',
-    '/icons/icon-192.png',
-    '/icons/icon-512.png'
+    './',
+    './index.html',
+    './styles.css',
+    './renderer.js',
+    './window-controls.js',
+    './manifest.json'
 ];
 
-// Install - cache all assets
+// Install - pre-cache the shell for this version, then take over ASAP.
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(ASSETS_TO_CACHE))
+            .then(cache => cache.addAll(ASSETS_TO_CACHE).catch(() => {}))
             .then(() => self.skipWaiting())
     );
 });
 
-// Activate - clean old caches
+// Activate - delete every cache that isn't the current version, then claim.
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then(keys => {
-            return Promise.all(
-                keys.filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
-            );
-        }).then(() => self.clients.claim())
+        caches.keys()
+            .then(keys => Promise.all(
+                keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+            ))
+            .then(() => self.clients.claim())
     );
 });
 
-// Fetch - serve from cache, fallback to network
+// Fetch - network-first so the freshest assets win; fall back to cache offline.
 self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request).then(networkResponse => {
-                    // Cache new requests dynamically
-                    if (networkResponse.status === 200) {
-                        const responseClone = networkResponse.clone();
-                        caches.open(CACHE_NAME).then(cache => {
-                            cache.put(event.request, responseClone);
-                        });
-                    }
-                    return networkResponse;
-                });
-            })
-            .catch(() => {
-                // Offline fallback
-                if (event.request.destination === 'document') {
-                    return caches.match('/index.html');
-                }
-            })
-    );
-});
+    const req = event.request;
+    if (req.method !== 'GET') return;
 
-// Background sync for data persistence
-self.addEventListener('sync', (event) => {
-    if (event.tag === 'sync-study-data') {
-        // Future: sync to cloud storage
-        event.waitUntil(Promise.resolve());
-    }
+    event.respondWith(
+        fetch(req)
+            .then(networkResponse => {
+                if (networkResponse && networkResponse.status === 200) {
+                    const clone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(req, clone)).catch(() => {});
+                }
+                return networkResponse;
+            })
+            .catch(() => caches.match(req).then(cached => {
+                if (cached) return cached;
+                if (req.destination === 'document') return caches.match('./index.html');
+                return Response.error();
+            }))
+    );
 });
 
 // Keep alive for timer accuracy
 self.addEventListener('message', (event) => {
-    if (event.data === 'keepalive') {
-        // Respond to keep the service worker active
+    if (event.data === 'keepalive' && event.source) {
         event.source.postMessage('alive');
     }
 });
