@@ -32,6 +32,15 @@
         </div>
     </div>
 
+    <!-- Always-On Display overlay (lockscreen / screen-off dim view) -->
+    <div id="aod-overlay" class="aod-overlay">
+        <div id="aod-inner" class="aod-inner">
+            <div id="aod-clock" class="aod-clock">00:00</div>
+            <div id="aod-timer" class="aod-timer">00:00:00</div>
+            <div id="aod-label" class="aod-label">FOCUS</div>
+        </div>
+    </div>
+
     <!-- Main Timer Screen -->
     <div id="main-screen" class="screen active">
         <!-- Top bar: Date left, Menu icon right -->
@@ -132,6 +141,13 @@
                 <label>Always on Top</label>
                 <label class="toggle-switch">
                     <input type="checkbox" id="always-on-top-toggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label>Always-On Display (lockscreen)</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="aod-toggle">
                     <span class="toggle-slider"></span>
                 </label>
             </div>

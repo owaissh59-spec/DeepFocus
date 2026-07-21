@@ -698,3 +698,70 @@ body.dimmed .fab, body.dimmed .fab-small, body.dimmed .icon-btn {
     from { transform: translateX(-50%) translateY(-120%); opacity: 0; }
     to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
+
+
+/* ============================================
+   ALWAYS-ON DISPLAY (AOD) - lockscreen dim view
+   Pure black + a few dim pixels = minimal AMOLED power.
+   No animations, no gradients, no glow, no canvas.
+   ============================================ */
+
+.aod-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: #000000;   /* pure black -> AMOLED pixels off */
+    color: #4a4a4a;        /* dim gray text, low luminance */
+    align-items: center;
+    justify-content: center;
+}
+
+.aod-overlay.active {
+    display: flex;
+}
+
+/* When AOD is on, hide everything else so nothing else lights pixels */
+body.aod-active .titlebar,
+body.aod-active .screen,
+body.aod-active .controls-row,
+body.aod-active .break-notification {
+    display: none !important;
+}
+
+.aod-inner {
+    text-align: center;
+    /* translated periodically by JS to prevent AMOLED burn-in */
+    will-change: transform;
+}
+
+.aod-clock {
+    font-family: var(--font-mono);
+    font-size: 26px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    color: #3a3a3a;
+    margin-bottom: 14px;
+}
+
+.aod-timer {
+    font-family: var(--font-mono);
+    font-size: 52px;
+    font-weight: 200;
+    letter-spacing: 2px;
+    color: #565656;
+    line-height: 1;
+}
+
+.aod-label {
+    margin-top: 16px;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #2e2e2e;
+}
+
+@media (max-width: 360px) {
+    .aod-timer { font-size: 42px; }
+    .aod-clock { font-size: 22px; }
+}

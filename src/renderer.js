@@ -364,6 +364,10 @@ class UIController {
         this.dimTimeout = null;
         this.isDimmed = false;
         this.ring = null;
+        // Always-On Display state
+        this.aodActive = false;
+        this.aodInterval = null;
+        this.aodDriftInterval = null;
     }
 
     async init() {
@@ -394,6 +398,11 @@ class UIController {
         document.getElementById('always-on-top-toggle').addEventListener('change', () => this.saveAllSettings());
         document.getElementById('auto-start-toggle').addEventListener('change', () => this.saveAllSettings());
         document.getElementById('break-reminder-input').addEventListener('change', () => this.saveAllSettings());
+        document.getElementById('aod-toggle').addEventListener('change', () => this.saveAllSettings());
+
+        // Tap the always-on view to leave it
+        const aodOverlay = document.getElementById('aod-overlay');
+        if (aodOverlay) aodOverlay.addEventListener('click', () => this.exitAOD());
 
         // Dimming
         document.addEventListener('click', () => this.wakeFromDim());
@@ -411,6 +420,10 @@ class UIController {
         document.getElementById('break-reminder-input').value = this.timer.breakReminderMinutes;
         document.getElementById('always-on-top-toggle').checked = await this.storage.getSetting('alwaysOnTop', true);
         document.getElementById('auto-start-toggle').checked = await this.storage.getSetting('autoStart', true);
+        const aodOn = await this.storage.getSetting('aodEnabled', false);
+        document.getElementById('aod-toggle').checked = aodOn;
+        // Keep the native layer in sync with the stored preference
+        try { window.Android && window.Android.setAodEnabled(!!aodOn); } catch (e) {}
     }
 
     onStart() { this.timer.start(); this.updateUI(); }
@@ -451,6 +464,7 @@ class UIController {
 
     startUIRefresh() {
         setInterval(() => {
+            if (this.aodActive) return; // AOD view handles its own minimal updates
             if (this.timer.state === 'running') {
                 this.updateTimerDisplay();
                 this.updateRing();
@@ -525,6 +539,7 @@ class UIController {
         const breakReminder = parseInt(document.getElementById('break-reminder-input').value) || 0;
         const alwaysOnTop = document.getElementById('always-on-top-toggle').checked;
         const autoStart = document.getElementById('auto-start-toggle').checked;
+        const aodEnabled = document.getElementById('aod-toggle').checked;
 
         this.dailyGoalHours = goal;
         this.timer.breakReminderMinutes = breakReminder;
@@ -533,6 +548,10 @@ class UIController {
         await this.storage.saveSetting('breakReminder', breakReminder);
         await this.storage.saveSetting('alwaysOnTop', alwaysOnTop);
         await this.storage.saveSetting('autoStart', autoStart);
+        await this.storage.saveSetting('aodEnabled', aodEnabled);
+
+        // Tell the Android layer whether to wake the screen into the AOD view
+        try { window.Android && window.Android.setAodEnabled(!!aodEnabled); } catch (e) {}
 
         if (window.__TAURI__) {
             // Tauri handles these via plugin config
@@ -671,6 +690,66 @@ class UIController {
 
     releaseWakeLock() { if (this.wakeLock) { this.wakeLock.release(); this.wakeLock = null; } }
 
+    // ============================================
+    // ALWAYS-ON DISPLAY (AOD)
+    // Called by the native layer via window.enterAOD / window.exitAOD
+    // when the screen turns off/on. Keeps only a few dim pixels lit.
+    // ============================================
+
+    enterAOD() {
+        if (this.aodActive) return;
+        this.aodActive = true;
+        document.body.classList.add('aod-active');
+        const overlay = document.getElementById('aod-overlay');
+        if (overlay) overlay.classList.add('active');
+
+        this.updateAOD();
+        // Timer counts seconds, so refresh once per second - just a text swap.
+        this.aodInterval = setInterval(() => this.updateAOD(), 1000);
+        // Shift the pixels every 60s to avoid AMOLED burn-in.
+        this.driftAOD();
+        this.aodDriftInterval = setInterval(() => this.driftAOD(), 60000);
+    }
+
+    exitAOD() {
+        if (!this.aodActive) return;
+        this.aodActive = false;
+        document.body.classList.remove('aod-active');
+        const overlay = document.getElementById('aod-overlay');
+        if (overlay) overlay.classList.remove('active');
+
+        if (this.aodInterval) { clearInterval(this.aodInterval); this.aodInterval = null; }
+        if (this.aodDriftInterval) { clearInterval(this.aodDriftInterval); this.aodDriftInterval = null; }
+
+        // Restore normal brightness / release the native wake lock.
+        try {
+            if (window.Android && window.Android.onAodDismissed) window.Android.onAodDismissed();
+            else if (window.Android && window.Android.setBrightness) window.Android.setBrightness(-1);
+        } catch (e) {}
+        this.updateUI();
+    }
+
+    updateAOD() {
+        const now = new Date();
+        const clock = document.getElementById('aod-clock');
+        const t = document.getElementById('aod-timer');
+        const label = document.getElementById('aod-label');
+        if (clock) clock.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        if (t) t.textContent = this.formatTime(this.timer.getCurrentElapsed());
+        if (label) {
+            const map = { running: 'FOCUS', paused: 'BREAK', stopped: 'READY' };
+            label.textContent = map[this.timer.state] || 'FOCUS';
+        }
+    }
+
+    driftAOD() {
+        const inner = document.getElementById('aod-inner');
+        if (!inner) return;
+        const dx = Math.round((Math.random() - 0.5) * 40); // +/-20px
+        const dy = Math.round((Math.random() - 0.5) * 40);
+        inner.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+
     requestNotificationPermission() {
         if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
     }
@@ -734,11 +813,17 @@ async function initApp() {
     if (timer.state === 'running') { notifyElectron('running'); ui.requestWakeLock(); }
 
     window.studyApp = { timer, storage, ui };
+
+    // Expose Always-On Display hooks for the native (Android) layer to call
+    // when the power button turns the screen off / back on.
+    window.enterAOD = () => ui.enterAOD();
+    window.exitAOD = () => ui.exitAOD();
 }
 
 function notifyElectron(state) {
-    // Tauri handles always-on-top and autostart via config
-    // No IPC needed for timer state
+    // Report study-session state to the native layer so it only wakes the
+    // screen into the always-on view while a session is actually running.
+    try { window.Android && window.Android.setTimerRunning(state === 'running'); } catch (e) {}
 }
 
 function registerServiceWorker() {
