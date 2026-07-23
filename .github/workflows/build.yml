@@ -121,25 +121,25 @@ jobs:
 
       - name: Rename APK
         run: |
-          cp android/app/build/outputs/apk/release/app-release.apk DeepFocus-v2.3.2.apk || \
-          cp android/app/build/outputs/apk/release/app-release-unsigned.apk DeepFocus-v2.3.2.apk || true
+          cp android/app/build/outputs/apk/release/app-release.apk DeepFocus-v2.3.3.apk || \
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk DeepFocus-v2.3.3.apk || true
 
       - name: Verify APK signature
         run: |
           BT=$(ls -d $ANDROID_HOME/build-tools/*/ | sort -V | tail -n 1)
-          "${BT}apksigner" verify --verbose --print-certs DeepFocus-v2.3.2.apk
+          "${BT}apksigner" verify --verbose --print-certs DeepFocus-v2.3.3.apk
 
       - name: Upload APK to release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: DeepFocus-v2.3.2.apk
+          files: DeepFocus-v2.3.3.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: DeepFocus-v2.3.2.apk
+          path: DeepFocus-v2.3.3.apk
 
   deploy-pwa:
     runs-on: ubuntu-latest

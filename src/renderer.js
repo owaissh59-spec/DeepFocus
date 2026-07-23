@@ -899,7 +899,7 @@ function notifyElectron(state) {
     } catch (e) {}
 }
 
-const APP_VERSION = '2.3.2';
+const APP_VERSION = '2.3.3';
 
 function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
