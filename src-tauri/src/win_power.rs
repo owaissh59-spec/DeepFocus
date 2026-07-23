@@ -26,11 +26,12 @@ use tauri::{AppHandle, Manager};
 use windows_sys::core::GUID;
 use windows_sys::Win32::Foundation::{HANDLE, HWND, LPARAM, LRESULT, WPARAM};
 use windows_sys::Win32::System::Power::{
-    SetThreadExecutionState, ES_CONTINUOUS, ES_DISPLAY_REQUIRED, ES_SYSTEM_REQUIRED,
+    RegisterPowerSettingNotification, SetThreadExecutionState, ES_CONTINUOUS,
+    ES_DISPLAY_REQUIRED, ES_SYSTEM_REQUIRED,
 };
 use windows_sys::Win32::System::RemoteDesktop::WTSRegisterSessionNotification;
 use windows_sys::Win32::UI::WindowsAndMessaging::{
-    CallWindowProcW, DefWindowProcW, RegisterPowerSettingNotification, SetWindowLongPtrW, WNDPROC,
+    CallWindowProcW, DefWindowProcW, SetWindowLongPtrW, WNDPROC,
 };
 
 // --- Constants defined locally to stay independent of windows-sys versions ---
