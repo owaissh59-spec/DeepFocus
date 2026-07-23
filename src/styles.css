@@ -470,6 +470,37 @@ body.timer-running .timer-display {
     border-color: var(--accent-blue);
 }
 
+.goal-input-group input[type="range"] {
+    width: 110px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--border-color);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+.goal-input-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    box-shadow: 0 0 6px rgba(0, 230, 118, 0.5);
+    cursor: pointer;
+}
+
+.goal-input-group input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent-green);
+    cursor: pointer;
+}
+
 .input-suffix {
     font-size: 11px;
     color: var(--text-dim);

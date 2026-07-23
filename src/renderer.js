@@ -365,9 +365,15 @@ class UIController {
         this.isDimmed = false;
         this.ring = null;
         // Always-On Display state
-        this.aodActive = false;
+        this.aodActive = false;        // dim view currently showing
+        this.aodEnabled = false;       // user preference (toggle)
+        this.aodBrightness = 40;       // 5..100 (%) how bright the AOD view is
         this.aodInterval = null;
         this.aodDriftInterval = null;
+        // Desktop (Tauri) drives AOD from an inactivity timer instead of the
+        // OS power button, since Windows can't render on the lock screen.
+        this.isDesktop = !!window.__TAURI__;
+        this.aodIdleMs = 60000;        // idle time before the desktop AOD kicks in
     }
 
     async init() {
@@ -400,6 +406,18 @@ class UIController {
         document.getElementById('break-reminder-input').addEventListener('change', () => this.saveAllSettings());
         document.getElementById('aod-toggle').addEventListener('change', () => this.saveAllSettings());
 
+        // AOD brightness slider: live label + live preview while AOD is showing.
+        const aodBright = document.getElementById('aod-brightness-input');
+        if (aodBright) {
+            aodBright.addEventListener('input', () => {
+                this.aodBrightness = parseInt(aodBright.value) || 40;
+                const lbl = document.getElementById('aod-brightness-value');
+                if (lbl) lbl.textContent = this.aodBrightness;
+                if (this.aodActive) this.applyAodBrightness();
+            });
+            aodBright.addEventListener('change', () => this.saveAllSettings());
+        }
+
         // Tap the always-on view to leave it
         const aodOverlay = document.getElementById('aod-overlay');
         if (aodOverlay) aodOverlay.addEventListener('click', () => this.exitAOD());
@@ -421,9 +439,18 @@ class UIController {
         document.getElementById('always-on-top-toggle').checked = await this.storage.getSetting('alwaysOnTop', true);
         document.getElementById('auto-start-toggle').checked = await this.storage.getSetting('autoStart', true);
         const aodOn = await this.storage.getSetting('aodEnabled', false);
+        this.aodEnabled = !!aodOn;
         document.getElementById('aod-toggle').checked = aodOn;
-        // Keep the native layer in sync with the stored preference
+
+        this.aodBrightness = await this.storage.getSetting('aodBrightness', 40);
+        const aodBright = document.getElementById('aod-brightness-input');
+        const aodBrightLbl = document.getElementById('aod-brightness-value');
+        if (aodBright) aodBright.value = this.aodBrightness;
+        if (aodBrightLbl) aodBrightLbl.textContent = this.aodBrightness;
+
+        // Keep the native layer in sync with the stored preferences
         try { window.Android && window.Android.setAodEnabled(!!aodOn); } catch (e) {}
+        try { window.Android && window.Android.setAodBrightness && window.Android.setAodBrightness(this.aodBrightness / 100); } catch (e) {}
     }
 
     onStart() { this.timer.start(); this.updateUI(); }
@@ -540,18 +567,26 @@ class UIController {
         const alwaysOnTop = document.getElementById('always-on-top-toggle').checked;
         const autoStart = document.getElementById('auto-start-toggle').checked;
         const aodEnabled = document.getElementById('aod-toggle').checked;
+        const aodBrightness = parseInt(document.getElementById('aod-brightness-input').value) || 40;
 
         this.dailyGoalHours = goal;
         this.timer.breakReminderMinutes = breakReminder;
+        this.aodEnabled = aodEnabled;
+        this.aodBrightness = aodBrightness;
 
         await this.storage.saveSetting('dailyGoal', goal);
         await this.storage.saveSetting('breakReminder', breakReminder);
         await this.storage.saveSetting('alwaysOnTop', alwaysOnTop);
         await this.storage.saveSetting('autoStart', autoStart);
         await this.storage.saveSetting('aodEnabled', aodEnabled);
+        await this.storage.saveSetting('aodBrightness', aodBrightness);
 
         // Tell the Android layer whether to wake the screen into the AOD view
+        // and how bright the dim always-on view should be.
         try { window.Android && window.Android.setAodEnabled(!!aodEnabled); } catch (e) {}
+        try { window.Android && window.Android.setAodBrightness && window.Android.setAodBrightness(aodBrightness / 100); } catch (e) {}
+
+        if (this.aodActive) this.applyAodBrightness();
 
         if (window.__TAURI__) {
             // Tauri handles these via plugin config
@@ -666,11 +701,22 @@ class UIController {
     resetDimTimer() {
         if (this.dimTimeout) clearTimeout(this.dimTimeout);
         this.dimTimeout = setTimeout(() => {
-            if (this.timer.state !== 'stopped') { document.body.classList.add('dimmed'); this.isDimmed = true; }
-        }, 60000);
+            if (this.timer.state === 'stopped') return;
+            // Desktop: the screen is kept awake while a session is *running*,
+            // so instead of letting Windows blank it we show our own dim
+            // always-on view. (Paused sessions let the screen sleep normally.)
+            if (this.isDesktop && this.aodEnabled) {
+                if (this.timer.state === 'running') this.enterAOD();
+            } else {
+                document.body.classList.add('dimmed');
+                this.isDimmed = true;
+            }
+        }, this.isDesktop ? this.aodIdleMs : 60000);
     }
 
     wakeFromDim() {
+        // Any user activity leaves the dim always-on view (desktop) ...
+        if (this.aodActive && this.isDesktop) this.exitAOD();
         if (this.isDimmed) { document.body.classList.remove('dimmed'); this.isDimmed = false; }
         this.resetDimTimer();
     }
@@ -703,12 +749,28 @@ class UIController {
         const overlay = document.getElementById('aod-overlay');
         if (overlay) overlay.classList.add('active');
 
+        this.applyAodBrightness();
         this.updateAOD();
         // Timer counts seconds, so refresh once per second - just a text swap.
         this.aodInterval = setInterval(() => this.updateAOD(), 1000);
         // Shift the pixels every 60s to avoid AMOLED burn-in.
         this.driftAOD();
         this.aodDriftInterval = setInterval(() => this.driftAOD(), 60000);
+    }
+
+    // Apply the user's AOD brightness preference (5..100).
+    // Desktop: a webview can't touch the monitor backlight, so we scale the
+    //          on-screen luminance of the dim view via a CSS brightness filter.
+    // Android: the native layer sets the physical panel backlight (0..1).
+    applyAodBrightness() {
+        const pct = Math.max(5, Math.min(100, this.aodBrightness || 40));
+        const overlay = document.getElementById('aod-overlay');
+        if (overlay) {
+            // Map 5..100% -> 0.3x..2.6x luminance of the base dim-gray text.
+            const mult = 0.3 + ((pct - 5) / 95) * 2.3;
+            overlay.style.filter = `brightness(${mult.toFixed(2)})`;
+        }
+        try { window.Android && window.Android.setBrightness && window.Android.setBrightness(pct / 100); } catch (e) {}
     }
 
     exitAOD() {
@@ -823,7 +885,18 @@ async function initApp() {
 function notifyElectron(state) {
     // Report study-session state to the native layer so it only wakes the
     // screen into the always-on view while a session is actually running.
-    try { window.Android && window.Android.setTimerRunning(state === 'running'); } catch (e) {}
+    const running = state === 'running';
+
+    // Android bridge
+    try { window.Android && window.Android.setTimerRunning(running); } catch (e) {}
+
+    // Desktop (Tauri / Windows): keep the display awake while studying and let
+    // the native layer re-show the lit timer when the screen/lock returns.
+    try {
+        if (window.__TAURI__ && window.__TAURI__.core) {
+            window.__TAURI__.core.invoke('set_session_active', { active: running });
+        }
+    } catch (e) {}
 }
 
 const APP_VERSION = '2.3.2';

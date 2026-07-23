@@ -36,8 +36,10 @@ public class MainActivity extends AppCompatActivity {
     private volatile boolean selfWake = false;      // the next SCREEN_ON is one we caused
 
     // Brightness level used while the always-on view is showing (0.0 - 1.0).
-    // Kept low to minimise power draw on an AMOLED panel.
-    private static final float AOD_BRIGHTNESS = 0.06f;
+    // Default is kept low to minimise power draw on an AMOLED panel; the user
+    // can raise it from the settings screen (e.g. for daylight visibility).
+    private static final float DEFAULT_AOD_BRIGHTNESS = 0.06f;
+    private volatile float aodBrightness = DEFAULT_AOD_BRIGHTNESS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences("deepfocus", Context.MODE_PRIVATE);
         aodEnabled = prefs.getBoolean("aod_enabled", false);
+        aodBrightness = prefs.getFloat("aod_brightness", DEFAULT_AOD_BRIGHTNESS);
 
         // === LOCKSCREEN VISIBILITY ===
         // Show this activity on top of the lock screen
@@ -169,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 // 12h safety cap; released on dismiss / destroy.
                 aodWakeLock.acquire(12 * 60 * 60 * 1000L);
             }
-            applyBrightness(AOD_BRIGHTNESS);
+            applyBrightness(aodBrightness);
             if (webView != null) {
                 webView.evaluateJavascript("window.enterAOD && window.enterAOD();", null);
             }
@@ -218,6 +221,19 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void setBrightness(final float level) {
             runOnUiThread(() -> applyBrightness(level));
+        }
+
+        // Persist the user's preferred always-on brightness (0..1). Applied the
+        // next time the screen goes off during a session; if the dim view is
+        // already showing, update the panel live.
+        @JavascriptInterface
+        public void setAodBrightness(final float level) {
+            float v = level < 0f ? DEFAULT_AOD_BRIGHTNESS : Math.max(0.01f, Math.min(1f, level));
+            aodBrightness = v;
+            prefs.edit().putFloat("aod_brightness", v).apply();
+            if (aodShowing) {
+                runOnUiThread(() -> applyBrightness(aodBrightness));
+            }
         }
 
         // The web UI calls this when the user taps the dim always-on view to

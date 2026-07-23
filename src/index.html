@@ -148,11 +148,18 @@
                 </label>
             </div>
             <div class="setting-item">
-                <label>Always-On Display (lockscreen)</label>
+                <label>Always-On Display</label>
                 <label class="toggle-switch">
                     <input type="checkbox" id="aod-toggle">
                     <span class="toggle-slider"></span>
                 </label>
+            </div>
+            <div class="setting-item">
+                <label>AOD Brightness</label>
+                <div class="goal-input-group">
+                    <input type="range" id="aod-brightness-input" min="5" max="100" step="5" value="40">
+                    <span class="input-suffix"><span id="aod-brightness-value">40</span>%</span>
+                </div>
             </div>
             <div class="setting-item">
                 <label>Auto-start with System</label>
