@@ -1,7 +1,17 @@
-# Perioperative Care — Supplementary Notes, as a fold-and-staple booklet
+# Perioperative Care notes → fold-and-staple booklets (Legal, left binding)
 
-`Perioperative_Care_Booklet_LEGAL.pdf` — **22 sheet-sides → 11 Legal sheets → 44 booklet pages.**
-Print it, fold the stack once, staple the spine.
+There are **two different documents** in your `DeepFocus` repo, produced by two
+different generator scripts. Both are converted here.
+
+| Booklet | Source document | Pages | Legal sheets |
+|---|---|---|---|
+| `Perioperative_Care_Booklet_LEGAL.pdf` | *SUPPLEMENTARY NOTES — EXAM-FOCUSED* (77 MCQs, 55 tables) | 44 | 11 |
+| `Supplementary_Notes_Booklet_LEGAL.pdf` | *SUPPLEMENTARY NOTES — WHAT YOUR PDF DID NOT COVER* (88 MCQs, 71 tables) | 60 | 15 |
+| `Supplementary_Notes_Booklet_LEGAL_4sig.pdf` | same as above, split into 4 gatherings | 60 | 15 |
+
+The two are genuinely different documents, not versions of one another — the
+second is a gap-analysis against the studied PDF and opens with a coverage-audit
+table; the first is the trimmed syllabus-ordered set.
 
 ## Print settings — these matter
 
@@ -13,78 +23,76 @@ Print it, fold the stack once, staple the spine.
 | Scale | **100% / "Actual size"** — never "Fit to page" |
 | Pages per sheet | **1** (imposition is already in the PDF) |
 
-Then: keep the 11 sheets in the order they come out, stack them printed-side-up,
-fold the whole stack once down the middle, staple through the spine.
-
 Landscape content on portrait-fed Legal means the sheet's short-edge hinge acts
-as a left/right mirror in the content frame — which is exactly the swap the two
-halves need. That is why it's short edge and not long edge.
+as a left/right mirror in the content frame — exactly the swap the two halves
+need. That is why it's short edge, not long edge.
 
-## What's here
+**Single signature** (the two files without `_4sig`): keep the sheets in the
+order they print, stack printed-side-up, fold the whole stack once, staple the
+spine.
 
-| File | What it is |
-|---|---|
-| `Perioperative_Care_Booklet_LEGAL.pdf` | **the thing to print** — imposed, 14 × 8.5 in |
-| `periop_pages.pdf` | same content in plain reading order, 7 × 8.5 in (screen reading) |
-| `render_docx.py` | `.docx` → reading-order booklet pages |
-| `impose.py` | reading-order pages → imposed sheets |
-| `make_test_pages.py` | numbered pages, for a fold test before the real run |
-| `test_booklet.pdf` | 16 numbered pages imposed — print this first |
-| `fonts/` | DejaVu Sans Condensed (see licence caveat below) |
+**Four gatherings** (`_4sig`): the sheets arrive in groups of 4, 4, 4 and 3.
+Fold and staple **each group separately**, then stack the four booklets in
+order. Reading order runs straight through.
+
+## Read this before printing the 60-page one
+
+`Supplementary_Notes_Booklet_LEGAL.pdf` is a single signature of **15 sheets**,
+because that is what you asked for — but it is not really practical:
+
+- 15 nested sheets is **30 leaves**. A desk stapler tops out around 20–25 and
+  will not reach through it; you'd need a long-reach saddle stapler.
+- Creep at the fore-edge will be roughly **4–6 mm** — the inner leaves stick
+  out noticeably past the outer ones.
+
+`Supplementary_Notes_Booklet_LEGAL_4sig.pdf` is the same content in gatherings
+of 4 sheets. Each folds flat, staples with anything, and creep drops to about
+1 mm. Only cost is four stapled booklets instead of one.
+
+The 44-page exam-focused booklet at 11 sheets is borderline but workable as a
+single signature.
 
 ## Layout
 
 Pages are 7 × 8.5 in with small **mirrored** margins — 0.34 in outer, 0.52 in at
-the fold — so text clears the spine without wasting the outer edge. Odd pages are
-rectos (gutter left), even pages versos (gutter right). Page numbers sit on the
-outer corner.
+the fold — so text clears the spine without wasting the outer edge. Odd pages
+are rectos (gutter left), even pages versos (gutter right). Page numbers sit on
+the outer corner. Every MCQ is bound so a question never separates from its
+answer across a page turn.
 
-## How the source was interpreted
+## How the sources were interpreted
 
-The `.docx` has no Heading styles — every paragraph is `Normal`, and structure
-lives in direct formatting. Roles were recovered from the (bold, size, colour)
-signature and remapped to real styles:
+Neither `.docx` uses Heading styles — every paragraph is `Normal`, with
+structure carried in direct formatting. Roles are recovered from the
+(bold, size, colour) signature:
 
-| Signature in the `.docx` | Role | Count |
-|---|---|---|
-| bold 17.0 navy `#1F3B73` | title | 1 |
-| bold 10.5 green `#1B6B3A` | subtitle | 1 |
-| 9.0 grey `#555555` | scope note | 1 |
-| bold 14.5 navy | section heading | 18 |
-| bold 11.5 green | subsection | 60 |
-| 9.5 navy | MCQ question stem | 77 |
-| 9.0 plain | MCQ options | 77 |
-| 9.0 red `#9C2710` | MCQ answer + explanation | 77 |
-| `▪` prefix | bullet | 93 |
-| `N.` prefix | numbered rule | 39 |
-| 9.5 plain / bold | body | 13 |
-| — | tables (12 of them single-cell callouts) | 55 |
+| Signature | Role |
+|---|---|
+| bold 17pt navy `#1F3B73` | title |
+| bold 10.5pt green `#1B6B3A` | subtitle |
+| 9pt grey `#555555` | scope note |
+| bold 14.5–15pt navy | section heading |
+| bold 11.5–12pt green | subsection |
+| bold 10.5pt **purple `#6A288F`** | sub-subsection *(supplement only)* |
+| 9.5pt navy | MCQ question stem |
+| 9pt plain | MCQ options |
+| 9pt red `#9C2710` | MCQ answer + explanation |
+| `▪` prefix | bullet |
+| single-cell table | callout box |
 
-Every one of the 513 paragraphs and 55 tables is accounted for. Each MCQ is
-wrapped so a question never separates from its answer across a page turn.
+Both documents are fully accounted for: 546 paragraphs + 71 tables for the
+supplement, 513 + 55 for the exam-focused set.
 
-The notes use 38 distinct non-ASCII characters (`→ ▪ ≥ ≤ ≈ ↑ ↓ ∝ ₂ ⁶ γ µ °` …).
-The built-in PDF fonts cover none of the arrows or maths signs — 385 characters
-would have silently vanished. DejaVu Sans Condensed covers all 38 in all four
-weights, and being condensed it also fits more per line on a 7-inch page.
+## Fonts
 
-## Signature bulge — the one real caveat
+The notes use 45 distinct non-ASCII characters (`→ ▪ ≥ ≤ ≈ ↑ ↓ ∝ ₂ ⁶ γ µ ° ⚠` …).
+The built-in PDF fonts cover none of the arrows or maths signs, so several
+hundred characters would have silently vanished. `fonts/` bundles DejaVu Sans
+Condensed, which covers all but two, and being condensed fits more per line.
 
-You asked for a single signature, and that's what this is: all 11 sheets nested
-inside one another. But 11 sheets is past the comfortable limit (~8–10). Expect
-the fold to bulge, and the inner leaves to creep outward past the outer ones by
-roughly 2–3 mm at the fore-edge. Options:
-
-- **Accept it** — with 0.34 in outer margins nothing gets cut off; it just looks
-  slightly stepped at the fore-edge.
-- **Trim the fore-edge flush** after folding, if you have a guillotine.
-- **Add creep compensation** — shift each sheet's content toward the spine
-  proportional to its depth in the nest. Say the word and I'll add it.
-- **Split into 2 signatures** of 6 and 5 sheets — folds flat, needs binding
-  rather than a single staple.
-
-Also check your stapler reaches ~22 leaves; a standard desk stapler often won't.
-A long-reach or saddle stapler will.
+The two it doesn't cover are the emoji `✅` and `❌` in the coverage-audit table.
+No general text font has them. They are remapped to `✔` and `✘`, which DejaVu
+does have, so the audit legend still reads correctly.
 
 ## Rebuilding
 
@@ -92,17 +100,29 @@ A long-reach or saddle stapler will.
 python3 -m venv .venv
 .venv/bin/pip install pypdf reportlab python-docx
 
-.venv/bin/python render_docx.py periop.docx periop_pages.pdf
-.venv/bin/python impose.py periop_pages.pdf Perioperative_Care_Booklet_LEGAL.pdf -v
+.venv/bin/python render_docx.py notes.docx pages.pdf
+.venv/bin/python impose.py pages.pdf booklet.pdf -v                    # one signature
+.venv/bin/python impose.py pages.pdf booklet.pdf --sheets-per-sig 4 -v # gatherings of 4
 ```
 
-`impose.py` pads to a multiple of 4 and warns when a signature gets too thick.
-It works on any PDF, not just this one.
+`impose.py` pads to a multiple of 4, warns when a signature is too thick to
+staple, and works on any PDF, not just these.
+
+## Files
+
+| File | What it is |
+|---|---|
+| `render_docx.py` | `.docx` → reading-order booklet pages |
+| `impose.py` | reading-order pages → imposed sheets, 1 or N signatures |
+| `make_test_pages.py` | numbered pages for a fold test |
+| `test_booklet.pdf` | 16 numbered pages imposed — print this first |
+| `*_pages.pdf` | reading order, 7 × 8.5 in, for screen reading |
+| `fonts/` | DejaVu Sans Condensed (licence below) |
 
 ## Attribution
 
-`fonts/` contains DejaVu Sans Condensed, from the
+`fonts/` contains DejaVu Sans Condensed from the
 [DejaVu Fonts project](https://dejavu-fonts.github.io/) (v2.37), under the
-[DejaVu licence](https://dejavu-fonts.github.io/License.html) — a permissive
-Bitstream Vera derivative. Full text in `fonts/LICENSE-DejaVu.txt`. The font
-files are redistributed unmodified.
+[DejaVu licence](https://dejavu-fonts.github.io/License.html), a permissive
+Bitstream Vera derivative. Full text in `fonts/LICENSE-DejaVu.txt`. Files are
+redistributed unmodified.

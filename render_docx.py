@@ -59,8 +59,26 @@ TOP, BOTTOM = 0.34 * IN, 0.40 * IN
 
 NAVY = colors.HexColor("#1F3B73")
 GREEN = colors.HexColor("#1B6B3A")
+PURPLE = colors.HexColor("#6A288F")
 RED = colors.HexColor("#9C2710")
 GREY = colors.HexColor("#555555")
+
+# The supplement's coverage-audit tables use emoji that no text font covers.
+# Map them to DejaVu-covered dingbats so the audit legend stays readable.
+GLYPH_SUB = {
+    "\u2705": "\u2714",   # white heavy check mark -> heavy check mark
+    "\u274c": "\u2718",   # cross mark             -> heavy ballot X
+    "\u2b50": "\u2605",   # star                   -> black star
+    "\U0001f7e2": "\u25cf",
+    "\U0001f534": "\u25cf",
+}
+
+
+def subst(text):
+    for a, b in GLYPH_SUB.items():
+        if a in text:
+            text = text.replace(a, b)
+    return text
 RULE = colors.HexColor("#B8C4D9")
 BOXBG = colors.HexColor("#F0F3F9")
 THBG = colors.HexColor("#E3E9F4")
@@ -118,6 +136,8 @@ def classify(p):
         return "answer"
     if col == "555555":
         return "scope"
+    if col == "6A288F":
+        return "h3"
     if col == "1B6B3A":
         return "h2" if size >= 11 else "subtitle"
     if col == "1F3B73":
@@ -139,7 +159,7 @@ def inline(p, force=None):
     """Rebuild a paragraph's runs as reportlab markup, keeping bold/italic."""
     out = []
     for r in p.runs:
-        t = html.escape(r.text, quote=False)
+        t = html.escape(subst(r.text), quote=False)
         if not t:
             continue
         if force == "plain":
@@ -191,6 +211,11 @@ def build_styles(s):
         "h2", parent=body, fontName=BOLD, fontSize=10 * s,
         leading=12 * s, textColor=GREEN,
         spaceBefore=6 * s, spaceAfter=2.4 * s, keepWithNext=1,
+    )
+    S["h3"] = ParagraphStyle(
+        "h3", parent=body, fontName=BOLD, fontSize=9.4 * s,
+        leading=11.4 * s, textColor=PURPLE,
+        spaceBefore=4.5 * s, spaceAfter=1.8 * s, keepWithNext=1,
     )
     S["bullet"] = ParagraphStyle(
         "bul", parent=body, leftIndent=9.5 * s, bulletIndent=1.5 * s,
