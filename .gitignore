@@ -6,3 +6,6 @@ src-tauri/icons/*.ico
 *.log
 .DS_Store
 Thumbs.db
+
+# generated
+scripts/__pycache__/
