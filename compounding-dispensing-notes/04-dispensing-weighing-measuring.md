@@ -340,8 +340,8 @@ apparatus.
 | **Syringe (oral dosing syringe)** | Graduated barrel | Paediatric & accurate small volumes | High |
 | **Household measures** | Spoons & cups given to the patient | Home administration only | Low |
 
-⭐ **RULE OF APPARATUS SELECTION:** *Always choose the **smallest measure that will hold the
-required volume***; and **never measure a volume less than one-fifth (20 %) of the capacity of the
+⭐ **RULE OF APPARATUS SELECTION:** Always choose the **smallest measure that will hold the
+required volume**; and **never measure a volume less than one-fifth (20 %) of the capacity of the
 measure** (a 100 mL conical measure should not be used for less than 20 mL).
 
 ⚠️ **TRAP — Conical vs Cylindrical measure:** the **cylindrical measure is the MORE ACCURATE**
